@@ -154,7 +154,7 @@ module openframe_project_wrapper (
           .gpio_holdover(gpio_holdover[0])
         );
         
-	CF_gpio_config #(.MODE(3'd3)) gpio_rst_config ( // rst pull up input at gpio 1
+	CF_gpio_config #(.MODE(3'd2)) gpio_rst_config ( // rst pull down input at gpio 1
           .io_out(),
           .io_in(rst),
           .io_oeb(),

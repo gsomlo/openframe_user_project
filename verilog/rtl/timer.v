@@ -35,7 +35,7 @@ module timer #(parameter  CC = 1,
     reg [31:0]  sec_div;
     reg [31:0]  scan_div;
     
-    always @(posedge clk or posedge rst) begin
+    always @(posedge clk) begin
         if(rst)
             sec_div <= 32'b0;
         else if(sec_div == FREQ)
@@ -44,7 +44,7 @@ module timer #(parameter  CC = 1,
             sec_div <= sec_div + 32'b1;
     end
 
-    always @(posedge clk or posedge rst) begin
+    always @(posedge clk) begin
         if(rst)
             scan_div <= 32'b0;
         else if(scan_div == DIG_DURATION)
@@ -53,7 +53,7 @@ module timer #(parameter  CC = 1,
             scan_div <= scan_div + 32'b1;
     end
 
-    always @(posedge clk or posedge rst) begin
+    always @(posedge clk) begin
         if(rst)
             sec <= 1'b0;
         else if(sec_div == FREQ)
@@ -62,7 +62,7 @@ module timer #(parameter  CC = 1,
             sec <= 1'b0;
     end
 
-    always @(posedge clk or posedge rst) begin
+    always @(posedge clk) begin
         if(rst)
             scan <= 1'b0;
         else if(scan_div == DIG_DURATION)
@@ -73,7 +73,7 @@ module timer #(parameter  CC = 1,
 
 
     // Seconds Counters
-    always @(posedge clk or posedge rst)
+    always @(posedge clk)
         if(rst) 
             sec_ones <=  4'b0;
         else if(sec) begin
@@ -83,7 +83,7 @@ module timer #(parameter  CC = 1,
                 sec_ones <= 0;
         end
 
-    always @(posedge clk or posedge rst)
+    always @(posedge clk)
         if(rst) 
             sec_tens <=  4'b0;
         else if(sec) begin 
@@ -94,7 +94,7 @@ module timer #(parameter  CC = 1,
         end
 
     // Minutes Counters
-    always @(posedge clk or posedge rst)
+    always @(posedge clk)
         if(rst) 
             min_ones <=  4'b0;
         else if(fifty_nine_sec & sec) begin
@@ -104,7 +104,7 @@ module timer #(parameter  CC = 1,
                 min_ones <= 0;
         end
 
-    always @(posedge clk or posedge rst)
+    always @(posedge clk)
         if(rst) 
             min_tens <=  4'b0;
         else if(fifty_nine_sec & sec) begin
@@ -117,7 +117,7 @@ module timer #(parameter  CC = 1,
     
         // Display TDM
         reg [1:0] dig_cnt;
-        always @(posedge clk or posedge rst) begin
+        always @(posedge clk) begin
             if(rst)
                 dig_cnt <= 2'b0;
             else
