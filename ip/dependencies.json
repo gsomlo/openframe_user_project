@@ -4,6 +4,9 @@
             "CF_gpio_config": "v1.1.4"
         },
         {
+            "CF_SRAM_1024x32": "v1.2.3"
+        },
+        {
             "CF_ROM_SYNC": "0.2.5"
         }
     ]
