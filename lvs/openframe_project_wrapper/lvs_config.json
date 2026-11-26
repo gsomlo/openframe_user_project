@@ -10,7 +10,8 @@
 		""
 	],
 	"EXTRACT_ABSTRACT": [
-		"*CF_ROM_SYNC"
+		"*CF_ROM_SYNC",
+		"*CF_SRAM_1024x32"
 	],
 	"EXTRACT_CREATE_SUBCUT": [
 		""
