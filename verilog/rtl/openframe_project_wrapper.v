@@ -22,6 +22,8 @@ module cf_rom_sync_grid #(
 	parameter AAW =  2, // additional address width (in bits)
 	parameter NCOL = 9  // number of horizontal tiles (i.e., "columns")
 ) (
+	input wire L0,
+	input wire L1,
 `ifdef USE_POWER_PINS
 	input  wire                vpwr,
 	input  wire                vgnd,
@@ -38,8 +40,8 @@ module cf_rom_sync_grid #(
 	assign row_adr = A[AAW+TAW-1:TAW];
 	reg [NROW-1:0] row_oe;
 	always @(posedge CLK) begin // always_ff
-		row_oe <= {NROW{1'b0}};
-		row_oe[row_adr] <= 1'b1;
+		row_oe <= {NROW{L0}};
+		row_oe[row_adr] <= L1;
 	end
 
 	generate
@@ -53,9 +55,9 @@ module cf_rom_sync_grid #(
 `endif // USE_POWER_PINS
 					.DO(DO[(col+1)*TDW-1:col*TDW]),
 					.A(A[TAW-1:0]),
-					.EN(1'b1),  // always enabled
+					.EN(L1),  // always enabled
 					.CLK(CLK),
-					.RST(1'b0), // never needs reset
+					.RST(L0), // never needs reset
 					.OE(row_oe[row])
 				);
 			end
@@ -70,6 +72,8 @@ module cf_sram_grid #(
 	parameter AAW =  3, // additional address width (in bits)
 	parameter NCOL = 2  // number of horizontal tiles (i.e., "columns)
 ) (
+	input wire L0,
+	input wire L1,
 `ifdef USE_POWER_PINS
 	input  wire                vpwr,
 	input  wire                vgnd,
@@ -88,8 +92,8 @@ module cf_sram_grid #(
 	assign row_adr = AD[AAW+TAW-1:TAW];
 	reg [NROW-1:0] row_sel; // enable row matching current cycle req.
 	always @* begin
-		row_sel = {NROW{1'b0}};
-		row_sel[row_adr] = 1'b1;
+		row_sel = {NROW{L0}};
+		row_sel[row_adr] = L1;
 	end
 	reg [NROW-1:0] row_sel_reg; // output selected by *previous* cycle req.
 	always @(posedge CLKin) begin
@@ -112,25 +116,25 @@ module cf_sram_grid #(
 					.vpwrm(vpwr),
 					.vpwrp(vpwr),
 `endif // USE_POWER_PINS
-					.vpwrac(1'b1),
-					.vpwrpc(1'b1),
+					.vpwrac(L1),
+					.vpwrpc(L1),
 
 					.DO(RDO[row][(col+1)*TDW-1:col*TDW]),
 					.ScanOutCC(),      // ignore
 					.AD(AD[TAW-1:0]),
-					.BEN({TDW{1'b1}}), // always full enable
+					.BEN({TDW{L1}}), // always full enable
 					.CLKin(CLKin),
 					.DI(DI[(col+1)*TDW-1:col*TDW]),
 					.EN(row_sel[row]),
 					.R_WB(~wren),
 					// disable all inputs below this point:
-					.ScanInCC(1'b0),
-					.ScanInDL(1'b0),
-					.ScanInDR(1'b0),
-					.SM(1'b0),
-					.TM(1'b0),
-					.WLBI(1'b0),
-					.WLOFF(1'b0)
+					.ScanInCC(L0),
+					.ScanInDL(L0),
+					.ScanInDR(L0),
+					.SM(L0),
+					.TM(L0),
+					.WLBI(L0),
+					.WLOFF(L0)
 				);
 			end
 		end
@@ -140,7 +144,7 @@ module cf_sram_grid #(
 	reg [NCOL*TDW-1:0] comb_do;
 	int i;
 	always @* begin
-		comb_do = {(NCOL*TDW){1'b0}};
+		comb_do = {(NCOL*TDW){L0}};
 		for (i = 0; i < NROW; i++) begin
 			comb_do = comb_do |
 				  (RDO[i] & {(NCOL*TDW){row_sel_reg[i]}});
@@ -280,6 +284,8 @@ module openframe_project_wrapper (
 
 	// memory module(s):
 	cf_rom_sync_grid rom_grid (
+		.L0(gpio_loopback_zero[0]),
+		.L1(gpio_loopback_one[0]),
 `ifdef USE_POWER_PINS
 		.vpwr(vccd1),
 		.vgnd(vssd1),
@@ -289,6 +295,8 @@ module openframe_project_wrapper (
 		.CLK(clk)
 	);
 	cf_sram_grid sram_grid (
+		.L0(gpio_loopback_zero[0]),
+		.L1(gpio_loopback_one[0]),
 `ifdef USE_POWER_PINS
 		.vpwr(vccd1),
 		.vgnd(vssd1),
